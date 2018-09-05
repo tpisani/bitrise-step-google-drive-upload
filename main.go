@@ -12,39 +12,39 @@ import (
 )
 
 func main() {
-	artifactPath := os.Getenv("ARTIFACT_PATH")
+	artifactPath := os.Getenv("artifact_path")
 	if artifactPath == "" {
-		fmt.Fprintln(os.Stderr, "$ARTIFACT_PATH not defined!")
+		fmt.Fprintln(os.Stderr, "artifact_path not defined!")
 		os.Exit(1)
 	}
 
-	artifactName := os.Getenv("ARTIFACT_NAME")
+	artifactName := os.Getenv("artifact_name")
 	if artifactName == "" {
 		parts := strings.Split(artifactPath, "/")
 		artifactName = parts[len(parts)-1]
 	}
 
-	clientID := os.Getenv("GOOGLE_DRIVE_CLIENT_ID")
+	clientID := os.Getenv("google_drive_client_id")
 	if clientID == "" {
-		fmt.Fprintln(os.Stderr, "$GOOGLE_DRIVE_CLIENT_ID is not defined!")
+		fmt.Fprintln(os.Stderr, "google_drive_client_id is not defined!")
 		os.Exit(1)
 	}
 
-	clientSecret := os.Getenv("GOOGLE_DRIVE_CLIENT_SECRET")
+	clientSecret := os.Getenv("google_drive_client_secret")
 	if clientSecret == "" {
-		fmt.Fprintln(os.Stderr, "$GOOGLE_DRIVE_CLIENT_SECRET is not defined!")
+		fmt.Fprintln(os.Stderr, "google_drive_client_secret is not defined!")
 		os.Exit(1)
 	}
 
-	refreshToken := os.Getenv("GOOGLE_DRIVE_REFRESH_TOKEN")
+	refreshToken := os.Getenv("google_drive_refresh_token")
 	if refreshToken == "" {
-		fmt.Fprintln(os.Stderr, "$GOOGLE_DRIVE_REFRESH_TOKEN is not defined!")
+		fmt.Fprintln(os.Stderr, "google_drive_refresh_token is not defined!")
 		os.Exit(1)
 	}
 
-	folderID := os.Getenv("GOOGLE_DRIVE_FOLDER_ID")
+	folderID := os.Getenv("google_drive_folder_id")
 	if folderID == "" {
-		fmt.Fprintln(os.Stderr, "$GOOGLE_DRIVE_FOLDER_ID is not defined!")
+		fmt.Fprintln(os.Stderr, "google_drive_folder_id is not defined!")
 		os.Exit(1)
 	}
 

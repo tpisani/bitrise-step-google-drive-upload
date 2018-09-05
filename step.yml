@@ -64,4 +64,32 @@ toolkit:
 
 
 inputs:
-  - ARTIFACT_PATH: ""
+  - artifact_path: $ARTIFACT_PATH
+    opts:
+      title: "Artifact path to upload"
+      is_required: true
+
+  - artifact_name: $ARTIFACT_NAME
+    opts:
+      title: "Artifact path to upload"
+      is_required: true
+
+  - google_drive_client_id: $GOOGLE_DRIVE_CLIENT_ID
+    opts:
+      title: "Google Drive client ID"
+      is_required: true
+
+  - google_drive_client_secret: $GOOGLE_DRIVE_CLIENT_SECRET
+    opts:
+      title: "Google Drive client secret"
+      is_required: true
+
+  - google_drive_refresh_token: $GOOGLE_DRIVE_REFRESH_TOKEN
+    opts:
+      title: "Google Drive refresh token"
+      is_required: true
+
+  - google_drive_folder_id: $GOOGLE_DRIVE_FOLDER_ID
+    opts:
+      title: "Google Drive folder ID"
+      is_required: true
