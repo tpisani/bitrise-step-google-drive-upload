@@ -71,8 +71,9 @@ inputs:
 
   - artifact_name: $ARTIFACT_NAME
     opts:
-      title: "Artifact path to upload"
-      is_required: true
+      title: "Artifact name"
+      summary: "Overrides the file name of 'artifact_path'"
+      is_required: false
 
   - google_drive_client_id: $GOOGLE_DRIVE_CLIENT_ID
     opts:
@@ -87,6 +88,7 @@ inputs:
   - google_drive_refresh_token: $GOOGLE_DRIVE_REFRESH_TOKEN
     opts:
       title: "Google Drive refresh token"
+      summary: "OAuth 2 refresh token obtained by user consent"
       is_required: true
 
   - google_drive_folder_id: $GOOGLE_DRIVE_FOLDER_ID

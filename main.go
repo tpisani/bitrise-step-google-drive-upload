@@ -73,7 +73,7 @@ func main() {
 
 	fileList, err := svc.Files.List().Q(fmt.Sprintf("'%s' in parents", folderID)).Do()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to list folder: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Unable to list folder (%s): %v\n", folderID, err)
 		os.Exit(1)
 	}
 
@@ -85,11 +85,12 @@ func main() {
 		}
 	}
 
+	fp := &drive.File{Name: artifactName}
+
 	if fileID == nil {
-		fp := &drive.File{Name: artifactName, Parents: []string{folderID}}
+		fp.Parents = []string{folderID}
 		_, err = svc.Files.Create(fp).Media(f).Do()
 	} else {
-		fp := &drive.File{Name: artifactName}
 		_, err = svc.Files.Update(*fileID, fp).AddParents(folderID).Media(f).Do()
 	}
 

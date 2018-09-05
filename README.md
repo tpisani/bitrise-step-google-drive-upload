@@ -1,6 +1,12 @@
 # Google Drive Upload
 
-Uploads an artifact to Google Drive
+Bitrise step to upload an artifact to Google Drive.
+
+
+## Pre-requisites
+
+This step uses a OAuth 2 refresh token obtained by user consent.
+You can use this [tool](https://github.com/tpisani/google-access-token) to get a token for your user.
 
 
 ## How to use this Step
