@@ -1,31 +1,100 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
-	"os/exec"
+	"strings"
+
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/drive/v3"
 )
 
 func main() {
-	fmt.Println("This is the value specified for the input 'example_step_input':", os.Getenv("example_step_input"))
-
-	//
-	// --- Step Outputs: Export Environment Variables for other Steps:
-	// You can export Environment Variables for other Steps with
-	//  envman, which is automatically installed by `bitrise setup`.
-	// A very simple example:
-	cmdLog, err := exec.Command("bitrise", "envman", "add", "--key", "EXAMPLE_STEP_OUTPUT", "--value", "the value you want to share").CombinedOutput()
-	if err != nil {
-		fmt.Printf("Failed to expose output with envman, error: %#v | output: %s", err, cmdLog)
+	artifactPath := os.Getenv("ARTIFACT_PATH")
+	if artifactPath == "" {
+		fmt.Fprintln(os.Stderr, "$ARTIFACT_PATH not defined!")
 		os.Exit(1)
 	}
-	// You can find more usage examples on envman's GitHub page
-	//  at: https://github.com/bitrise-io/envman
 
-	//
-	// --- Exit codes:
-	// The exit code of your Step is very important. If you return
-	//  with a 0 exit code `bitrise` will register your Step as "successful".
-	// Any non zero exit code will be registered as "failed" by `bitrise`.
-	os.Exit(0)
+	artifactName := os.Getenv("ARTIFACT_NAME")
+	if artifactName == "" {
+		parts := strings.Split(artifactPath, "/")
+		artifactName = parts[len(parts)-1]
+	}
+
+	clientID := os.Getenv("GOOGLE_DRIVE_CLIENT_ID")
+	if clientID == "" {
+		fmt.Fprintln(os.Stderr, "$GOOGLE_DRIVE_CLIENT_ID is not defined!")
+		os.Exit(1)
+	}
+
+	clientSecret := os.Getenv("GOOGLE_DRIVE_CLIENT_SECRET")
+	if clientSecret == "" {
+		fmt.Fprintln(os.Stderr, "$GOOGLE_DRIVE_CLIENT_SECRET is not defined!")
+		os.Exit(1)
+	}
+
+	refreshToken := os.Getenv("GOOGLE_DRIVE_REFRESH_TOKEN")
+	if refreshToken == "" {
+		fmt.Fprintln(os.Stderr, "$GOOGLE_DRIVE_REFRESH_TOKEN is not defined!")
+		os.Exit(1)
+	}
+
+	folderID := os.Getenv("GOOGLE_DRIVE_FOLDER_ID")
+	if folderID == "" {
+		fmt.Fprintln(os.Stderr, "$GOOGLE_DRIVE_FOLDER_ID is not defined!")
+		os.Exit(1)
+	}
+
+	f, err := os.Open(artifactPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to open artifact: %v\n", err)
+		os.Exit(1)
+	}
+
+	t := &oauth2.Token{RefreshToken: refreshToken}
+	config := &oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		Endpoint:     google.Endpoint,
+		Scopes: []string{
+			drive.DriveScope,
+		},
+	}
+	client := config.Client(context.Background(), t)
+
+	svc, err := drive.New(client)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to initialize Google Drive service: %v\n", err)
+		os.Exit(1)
+	}
+
+	fileList, err := svc.Files.List().Q(fmt.Sprintf("'%s' in parents", folderID)).Do()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to list folder: %v\n", err)
+		os.Exit(1)
+	}
+
+	var fileID *string
+	for _, fp := range fileList.Files {
+		if fp.Name == artifactName {
+			fileID = &fp.Id
+			break
+		}
+	}
+
+	if fileID == nil {
+		fp := &drive.File{Name: artifactName, Parents: []string{folderID}}
+		_, err = svc.Files.Create(fp).Media(f).Do()
+	} else {
+		fp := &drive.File{Name: artifactName}
+		_, err = svc.Files.Update(*fileID, fp).AddParents(folderID).Media(f).Do()
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to upload file: %v\n", err)
+		os.Exit(1)
+	}
 }
